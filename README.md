@@ -2,6 +2,8 @@
 
 A Blender extension that provides a Model Context Protocol (MCP) server for executing Python commands within Blender.
 
+> **Get the MCP server:** [zachEastin/mcp_bpy](https://github.com/zachEastin/mcp_bpy)
+
 ## Overview
 
 This extension creates a TCP server that listens for JSON-formatted commands and executes them within the Blender Python environment. It's designed to allow external tools and AI assistants to automate Blender through a standardized protocol.
