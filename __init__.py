@@ -59,7 +59,7 @@ class BPYMCPPreferences(AddonPreferences):
     auto_start: BoolProperty(
         name="Auto Start",
         description="Automatically start the MCP server when Blender starts",
-        default=False,
+        default=True,
     )
     
     require_token: BoolProperty(
