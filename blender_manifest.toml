@@ -1,0 +1,33 @@
+# Blender Extension Manifest
+# https://docs.blender.org/manual/en/latest/advanced/extensions/creating_extensions.html
+
+schema_version = "1.0.0"
+
+# Unique identifier for the extension
+id = "bpy_mcp_addon"
+name = "BPY MCP"
+tagline = "Model Context Protocol server for Blender automation"
+version = "0.1.0"
+type = "add-on"
+
+# Supported Blender versions
+blender_version_min = "4.2.0"
+
+# License
+license = ["SPDX:GPL-3.0-or-later"]
+
+# Maintainer information
+maintainer = "MCP BPY Team <maintainer@example.com>"
+website = "https://github.com/yourusername/mcp_bpy"
+
+# Tags for discoverability
+tags = ["Automation", "Scripting", "Development", "Network"]
+
+# Permissions required by the extension
+[permissions]
+network = "Allow external tools to execute Python commands via network interface"
+
+# Python dependencies (wheels)
+# wheels = [
+#   "./wheels/websockets-*.whl",
+# ]
