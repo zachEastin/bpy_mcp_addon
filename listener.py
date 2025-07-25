@@ -837,36 +837,42 @@ class BPYMCPProtocol:
             import bmesh
             import mathutils
             
-            # Create a restricted globals environment
+            # Create a comprehensive but secure globals environment
+            # Start with most built-ins but exclude dangerous ones
+            safe_builtins = {}
+            dangerous_builtins = {
+                'eval', 'exec', 'compile', 'open', 'input', 'raw_input',
+                'file', 'reload', 'exit', 'quit', 'help', 'credits', 'license',
+                'copyright', '__loader__', '__spec__', '__package__',
+                'delattr', 'setattr'  # Prevent attribute manipulation
+            }
+            
+            # Add all built-ins except the dangerous ones
+            import builtins
+            for name in dir(builtins):
+                if not name.startswith('_') and name not in dangerous_builtins:
+                    safe_builtins[name] = getattr(builtins, name)
+            
+            # Explicitly add some commonly needed ones that might be filtered
+            safe_builtins.update({
+                'dir': dir,
+                'vars': vars,
+                'globals': lambda: safe_globals,  # Return our safe globals instead
+                'locals': locals,
+                'Exception': Exception,
+                'ValueError': ValueError,
+                'TypeError': TypeError,
+                'AttributeError': AttributeError,
+                'KeyError': KeyError,
+                'IndexError': IndexError,
+                'RuntimeError': RuntimeError,
+                'NotImplementedError': NotImplementedError,
+                'StopIteration': StopIteration,
+                '__import__': __import__,  # Allow imports in user code
+            })
+            
             safe_globals = {
-                '__builtins__': {
-                    # Safe built-ins only
-                    'len': len,
-                    'str': str,
-                    'int': int,
-                    'float': float,
-                    'bool': bool,
-                    'list': list,
-                    'dict': dict,
-                    'tuple': tuple,
-                    'set': set,
-                    'range': range,
-                    'enumerate': enumerate,
-                    'zip': zip,
-                    'sorted': sorted,
-                    'reversed': reversed,
-                    'min': min,
-                    'max': max,
-                    'sum': sum,
-                    'any': any,
-                    'all': all,
-                    'print': print,
-                    'hasattr': hasattr,
-                    'getattr': getattr,
-                    'isinstance': isinstance,
-                    'type': type,
-                    '__import__': __import__,  # Allow imports in user code
-                },
+                '__builtins__': safe_builtins,
                 'bpy': bpy,
                 'bmesh': bmesh,
                 'mathutils': mathutils,
@@ -918,36 +924,42 @@ class BPYMCPProtocol:
             import bmesh
             import mathutils
             
-            # Create a restricted globals environment
+            # Create a comprehensive but secure globals environment
+            # Start with most built-ins but exclude dangerous ones
+            safe_builtins = {}
+            dangerous_builtins = {
+                'eval', 'exec', 'compile', 'open', 'input', 'raw_input',
+                'file', 'reload', 'exit', 'quit', 'help', 'credits', 'license',
+                'copyright', '__loader__', '__spec__', '__package__',
+                'delattr', 'setattr'  # Prevent attribute manipulation
+            }
+            
+            # Add all built-ins except the dangerous ones
+            import builtins
+            for name in dir(builtins):
+                if not name.startswith('_') and name not in dangerous_builtins:
+                    safe_builtins[name] = getattr(builtins, name)
+            
+            # Explicitly add some commonly needed ones that might be filtered
+            safe_builtins.update({
+                'dir': dir,
+                'vars': vars,
+                'globals': lambda: safe_globals,  # Return our safe globals instead
+                'locals': locals,
+                'Exception': Exception,
+                'ValueError': ValueError,
+                'TypeError': TypeError,
+                'AttributeError': AttributeError,
+                'KeyError': KeyError,
+                'IndexError': IndexError,
+                'RuntimeError': RuntimeError,
+                'NotImplementedError': NotImplementedError,
+                'StopIteration': StopIteration,
+                '__import__': __import__,  # Allow imports in user code
+            })
+            
             safe_globals = {
-                '__builtins__': {
-                    # Safe built-ins only
-                    'len': len,
-                    'str': str,
-                    'int': int,
-                    'float': float,
-                    'bool': bool,
-                    'list': list,
-                    'dict': dict,
-                    'tuple': tuple,
-                    'set': set,
-                    'range': range,
-                    'enumerate': enumerate,
-                    'zip': zip,
-                    'sorted': sorted,
-                    'reversed': reversed,
-                    'min': min,
-                    'max': max,
-                    'sum': sum,
-                    'any': any,
-                    'all': all,
-                    'print': print,
-                    'hasattr': hasattr,
-                    'getattr': getattr,
-                    'isinstance': isinstance,
-                    'type': type,
-                    '__import__': __import__,  # Allow imports in user code
-                },
+                '__builtins__': safe_builtins,
                 'bpy': bpy,
                 'bmesh': bmesh,
                 'mathutils': mathutils,
