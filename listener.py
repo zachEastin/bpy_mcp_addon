@@ -567,6 +567,14 @@ class BPYMCPProtocol:
                             break
                     
                     if not addon_found:
+                        # Try to find by partial name
+                        for mod in addon_utils.modules():
+                            if addon_name.lower() in mod.__name__.lower() or addon_name.lower() in mod.bl_info.get("name", "").lower():
+                                addon_name = mod.__name__
+                                addon_found = True
+                                break
+
+                    if not addon_found:
                         # Return list of available addons
                         all_addons = []
                         for mod in addon_utils.modules():
@@ -740,6 +748,9 @@ class BPYMCPProtocol:
             if not node_group:
                 raise ValueError(f"Node group not found: {node_group_name}")
             
+            return process_node_tree(node_group)
+
+        def process_node_tree(node_group: "bpy.types.NodeTree") -> dict[str, Any]:
             # Get detailed node group information
             nodes_data = []
             
@@ -758,7 +769,8 @@ class BPYMCPProtocol:
                     "selection_status": getattr(node, 'select', False),
                     "inputs": [],
                     "outputs": [],
-                    "properties": []
+                    "properties": [],
+                    "node_tree": {},
                 }
                 
                 # Get input sockets
@@ -768,10 +780,26 @@ class BPYMCPProtocol:
                 # Get output sockets
                 for output_socket in node.outputs:
                     node_info["outputs"].append(self.process_socket(output_socket))
-                
+
+                if node.type == "GROUP" and node.node_tree:
+                    node_info["node_tree"] = process_node_tree(node.node_tree)
+
+                def process_property(data, prop:str) -> dict:
+                    prop_info = {
+                        "name": prop,
+                        "bl_rna_type": 'unknown',
+                        "value": None
+                    }
+                    if hasattr(data, prop):
+                        prop_value = getattr(data, prop)
+                        if callable(prop_value):
+                            return None
+                        prop_info["value"] = prop_value
+                    return prop_info
+
                 # Get node properties
                 for prop_name in dir(node):
-                    if prop_name.startswith('_') or prop_name in ['link', 'links', 'internal_links', 'inputs', 'outputs', 'name', 'label', 'bl_idname', 'location', 'parent', 'select', 'mute', 'color', 'use_custom_color']:
+                    if prop_name.startswith('_') or prop_name in {'bake_items', 'repeat_items', 'state_items', 'index_switch_items', 'capture_items', 'node_group', 'link', 'links', 'internal_links', 'inputs', 'outputs', 'name', 'label', 'bl_idname', 'location', 'parent', 'select', 'mute', 'color', 'use_custom_color'}:
                         continue
                     
                     try:
@@ -795,7 +823,8 @@ class BPYMCPProtocol:
                             # Handle Blender data types with names
                             prop_value = prop_value.name
                         elif not isinstance(prop_value, (int, float, bool, str, type(None))):
-                            prop_value = str(prop_value)
+                            # prop_value = str(prop_value)
+                            continue
                         
                         prop_info = {
                             "name": prop_name,
@@ -811,7 +840,7 @@ class BPYMCPProtocol:
                 nodes_data.append(node_info)
             
             result = {
-                "node_group_name": node_group_name,
+                "node_group_name": node_group.name,
                 "node_tree_type": node_group.type if hasattr(node_group, 'type') else 'UNKNOWN',
                 "nodes": nodes_data,
                 # "links": links_data,
